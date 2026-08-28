@@ -25,3 +25,17 @@
         lat (get-in result [:json "result" "addressMatches" 0 "coordinates" "x"])
         lon (get-in result [:json "result" "addressMatches" 0 "coordinates" "y"])]
     {:lat lat :lon lon}))
+
+(defn coords-to-next-links [coords]
+  (let [str-lat (string/slice (string (coords :lat)) 0 7)
+        str-lon (string/slice (string (coords :lon)) 0 7)
+        url-tpl "https://api.weather.gov/points/%s,%s"
+        url (string/format url-tpl str-lon str-lat)
+        _ (print "weather url: " url)
+        result (get-json url {})
+        base-forecast (get-in result [:json "properties" "forecast"])
+        hourly-forecast (get-in result [:json "properties" "forecastHourly"])
+        answer {:url-forecast base-forecast :url-forecast-hourly hourly-forecast}]
+    (print "Weather Next URLS:")
+    (pp answer)
+    answer))
