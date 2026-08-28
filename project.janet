@@ -9,11 +9,12 @@
   :url ""
   :repo "")
 
+# execute with `jpm run server` in the terminal
 (phony "server" []
        (os/shell "janet main.janet"))
 
 (phony "format" []
-  (os/shell "janet fmt.janet *.janet project.janet"))
+       (os/shell "janet fmt.janet *.janet project.janet"))
 
 (declare-executable
   :name "app"

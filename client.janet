@@ -1,7 +1,7 @@
 (import http)
 (import spork/json)
 
-# client
+# base client
 (defn get-json
   "Make a GET request and parse the result as JSON"
   [url query-params]
