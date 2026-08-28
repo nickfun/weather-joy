@@ -15,7 +15,7 @@
       [:link {:href "/app.css" :rel "stylesheet"}]
       [:script {:src "/app.js" :defer ""}]]
      [:body
-       body]]))
+      body]]))
 
 
 # Routes

@@ -3,14 +3,17 @@
   :description ""
   :dependencies ["https://github.com/joy-framework/joy"
                  "https://github.com/janet-lang/sqlite3"
-		 "https://github.com/joy-framework/http"]
+                 "https://github.com/joy-framework/http"]
   :author ""
   :license ""
   :url ""
   :repo "")
 
 (phony "server" []
-  (os/shell "janet main.janet"))
+       (os/shell "janet main.janet"))
+
+(phony "format" []
+  (os/shell "janet fmt.janet *.janet project.janet"))
 
 (declare-executable
   :name "app"
