@@ -5,6 +5,7 @@
 (defn get-json
   "Make a GET request and parse the result as JSON"
   [url query-params]
+  (print "DOWNSTREAM: " url " " (string/format "%m" query-params))
   (let [params-str (http/form-encode query-params)
         params-str (if (pos? (length params-str)) (string "?" params-str) "")
         params-str (string/replace-all " " "%20" params-str)
@@ -31,11 +32,22 @@
         str-lon (string/slice (string (coords :lon)) 0 7)
         url-tpl "https://api.weather.gov/points/%s,%s"
         url (string/format url-tpl str-lon str-lat)
-        _ (print "weather url: " url)
+        #_ (print "weather url: " url)
         result (get-json url {})
         base-forecast (get-in result [:json "properties" "forecast"])
         hourly-forecast (get-in result [:json "properties" "forecastHourly"])
         answer {:url-forecast base-forecast :url-forecast-hourly hourly-forecast}]
-    (print "Weather Next URLS:")
-    (pp answer)
+    #(print "Weather Next URLS:")
     answer))
+
+(defn links-to-forecast [links]
+  (let [forecast-url (links :url-forecast)
+        results (get-json forecast-url [])
+        periods (get-in results ["properties" "periods"])]
+    periods))
+
+(defn address-to-weather [address]
+  (let [coords (address-to-coords address)
+        links (coords-to-next-links coords)
+        forecast (links-to-forecast links)]
+    {:forecast forecast}))

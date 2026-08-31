@@ -10,4 +10,6 @@
 (let [input (address-list 0)
       coords (client/address-to-coords input)
       next-links (client/coords-to-next-links coords)]
-  (print "Client Done"))
+  (print "result of next-links")
+  (pp next-links)
+  (print "CLI Done"))
