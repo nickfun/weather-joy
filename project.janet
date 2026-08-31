@@ -11,7 +11,7 @@
 
 # execute with `jpm run server` in the shell
 (phony "server" []
-       (os/shell "janet main.janet"))
+       (os/shell "janet server.janet"))
 
 # execute with `jpm run format` in the shell
 (phony "format" []
@@ -19,4 +19,4 @@
 
 (declare-executable
   :name "app"
-  :entry "main.janet")
+  :entry "server.janet")
