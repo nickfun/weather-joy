@@ -1,4 +1,5 @@
 (import "./client")
+(import "./cache")
 
 (def address-list ["4512 N Sunnyside Ave, Fresno, CA 93727"
                    "3239 lenard dr, castro valley, ca, 94546"
@@ -7,9 +8,21 @@
 
 (defn mappr [addr] (print "Address: " addr) (pp (client/address-to-coords addr)))
 
-(let [input (address-list 0)
-      coords (client/address-to-coords input)
-      next-links (client/coords-to-next-links coords)]
-  (print "result of next-links")
-  (pp next-links)
-  (print "CLI Done"))
+# (let [input (address-list 0)
+#       coords (client/address-to-coords input)
+#       next-links (client/coords-to-next-links coords)]
+#   (print "result of next-links")
+#   (pp next-links)
+#   (print "CLI Done"))
+
+
+(let [key "cool-nick-test"
+      path (cache/cache-key-to-path key)
+      _ (print "path: " path " key: " key)
+      data {:name "Nick" :age 42 :sleepy true :happy "maybe" :more ["one" 2]}
+      _ (cache/json-file-write path data)])
+
+(let [key "cool-nick-test"
+      path (cache/cache-key-to-path key)
+      contents (cache/json-file-read path)
+      _ (pp contents)])
