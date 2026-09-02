@@ -16,5 +16,23 @@
         data (json/decode raw true true)]
     data))
 
+(defn cache-envelope [date expire-seconds]
+  (let [save-date (date/utc-now)
+        expire-date (date/add save-date :seconds expire-seconds)]
+    {:save-date save-date :expire-date expire-date :data data}))
+
+(defn still-valid? [envelope]
+  (let [now (date/utc-now)
+        past (envelope :save-date)
+        expire (envelope :expire-date)
+        is-valid (date/is-between? now past expire)]
+    is-valid))
+
 (defn cache-key-to-path [key]
   (string "./cache/c" (hash key) ".json"))
+
+(defn load-cache [key]
+  (let [path (cache-key-to-path)
+        raw-json (json-file-read path)
+        date-valid (still-valid? raw-json)]
+    (if date-valid (raw-json :data) false)))
