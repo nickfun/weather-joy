@@ -10,6 +10,10 @@
   :url ""
   :repo "")
 
+# execute with `jpm run watch` in the shell
+# it will restart the server on file change
+(phony "watch" [] (os/shell "ls *.janet | entr -r jpm run server"))
+
 # execute with `jpm run server` in the shell
 (phony "server" []
        (os/shell "janet server.janet"))

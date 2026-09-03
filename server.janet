@@ -33,7 +33,10 @@
       [:link {:href "/app.css" :rel "stylesheet"}]
       [:script {:src "/app.js" :defer ""}]]
      [:body
-      body]]))
+      [:main
+       body]
+      [:footer
+       [:span "Powered by Janet"]]]]))
 
 
 # Routes
