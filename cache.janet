@@ -33,7 +33,7 @@
     is-valid))
 
 (defn cache-key-to-path [key]
-  (string "./cache/c" (hash key) ".json"))
+  (string "./__cached/c" (hash key) ".json"))
 
 (defn load-cache [key]
   (def [load-result data]
