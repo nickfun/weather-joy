@@ -6,18 +6,17 @@
 # =====
 
 (defn view-forecast-period [period]
-  (print "invoke view-forecast-period")
-  (pp period)
-  (let [day (period "name")
-        _temp (period "temperature")
-        _unit (period "temperatureUnit")
+  # (print "invoke view-forecast-period")
+  # (pp period)
+  (let [day (period :name)
+        _temp (period :temperature)
+        _unit (period :temperatureUnit)
         temp (string _temp " " _unit)
-        detail (period "detailedForecast")
+        detail (period :detailedForecast)
         result [:div
                 [:h4 day]
                 [:div temp]
                 [:div detail]]]
-    (pp result)
     result))
 
 # Layout
@@ -37,24 +36,22 @@
      [:body
       [:main
        body]
-      [:footer
-       [:span "Powered by Janet"]]]]))
+      [:footer.bottom
+       [:a {:href "/"} "Home"]
+       [:span {} " | "]
+       [:a {:href "/about"} "About"]
+       [:span {} " | "]
+       [:span "Powered by Janet with Joy"]]]]))
 
 
 # Routes
-# ======
+# ====== 
 
 (route :get "/" :home)
 (defn home [request]
   [:div {:class "tc"}
-   [:h1 "You found joy!"]
-   [:p {:class "code"}
-    [:b "Joy Version:"]
-    [:span (string " " version)]]
-   [:p "Hey I am new! and that is great"]
-   [:p {:class "code"}
-    [:b "Janet Version:"]
-    [:span janet/version]]
+   [:h1 "Simple Weather Report"]
+   [:p "Enter a USA Address below and I'll use the National Weather Service to get a weather report."]
    [:form {:method "get" :action "/weather"}
     [:input {:type "text" :name "address"}]
     [:input {:type "submit"}]]])
@@ -63,21 +60,26 @@
 (defn get-weather [request]
   (let [qs (request :query-string)
         address (qs :address)
+        clean-address (string/replace-all "+" " " address)
         weather (client/address-to-weather address)
-        forecast (weather :forecast)
-        _ (print "weather is")
-        _ (print (string/format "%m" weather))
-        _ (print "forecast is")
-        _ (print (string/format "%m" forecast))]
+        forecast (weather :forecast)]
     (pp (request :query-string))
     (pp address)
     [:div
-     [:div "check the output!"]
-     [:h3 {} address]
-     (map view-forecast-period forecast)
-     #(view-forecast-period (forecast 0))
-     [:div.bottom "thanks!"]
-     [:div [:a {:href "/"} "Home!"]]]))
+     [:h1 "Weather Report"]
+     [:h2 clean-address]
+     (map view-forecast-period forecast)]))
+
+(route :get "/about" :about)
+(defn about [request]
+  [:div {:class "tc"}
+   [:h1 "You found joy!"]
+   [:p {:class "code"}
+    [:b "Joy Version:"]
+    [:span (string " " version)]]
+   [:p {:class "code"}
+    [:b "Janet Version:"]
+    [:span janet/version]]])
 
 # Middleware
 (def app (-> (handler)

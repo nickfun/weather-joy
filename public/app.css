@@ -241,3 +241,9 @@ tbody tr:nth-child(even) {
   background: #415c73;
 }
 /* End water.css */
+
+
+.bottom {
+  margin-top: 2em;
+  padding-top: 2em;
+}

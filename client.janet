@@ -17,7 +17,7 @@
         response (http/get full-url)
         # _ (print "Debug URL: " full-url)
         # _ (print "Full Respose: " (response :body))
-        json-response (json/decode (response :body))]
+        json-response (json/decode (response :body) true true)]
     (put response :json json-response)
     response))
 
@@ -27,8 +27,8 @@
         query-params {:address address :benchmark benchmark :format format}
         url "https://geocoding.geo.census.gov/geocoder/locations/onelineaddress"
         result (get-json url query-params)
-        lat (get-in result [:json "result" "addressMatches" 0 "coordinates" "x"])
-        lon (get-in result [:json "result" "addressMatches" 0 "coordinates" "y"])]
+        lat (get-in result [:json :result :addressMatches 0 :coordinates :x])
+        lon (get-in result [:json :result :addressMatches 0 :coordinates :y])]
     {:lat lat :lon lon}))
 
 (defn coords-to-next-links [coords]
@@ -40,8 +40,8 @@
         url (string/format url-tpl str-lon str-lat)
         #_ (print "weather url: " url)
         result (get-json url {})
-        base-forecast (get-in result [:json "properties" "forecast"])
-        hourly-forecast (get-in result [:json "properties" "forecastHourly"])
+        base-forecast (get-in result [:json :properties :forecast])
+        hourly-forecast (get-in result [:json :properties :forecastHourly])
         answer {:url-forecast base-forecast :url-forecast-hourly hourly-forecast}]
     #(print "Weather Next URLS:")
     answer))
@@ -51,7 +51,7 @@
         results (get-json forecast-url [])
         # _ (print "raw results of forecast ")
         # _ (pp results)
-        periods (get-in results [:json "properties" "periods"])]
+        periods (get-in results [:json :properties :periods])]
     periods))
 
 (defn address-to-weather [address]
