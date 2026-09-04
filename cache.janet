@@ -57,7 +57,16 @@
         true)))
   write-result)
 
-(defn cache [key ttl userfn]
+(defn cache
+  ``
+  key: Your cache key
+  ttl: how many seconds this should be cached for
+  userfn: a function to run to fill the cache
+
+  The main interface to the little cache library. Runs your function and caches
+  it and doesn't run it again until the cache expires.
+  ``
+  [key ttl userfn]
   (def load-result (load-cache key))
   (if (= false load-result)
     (do

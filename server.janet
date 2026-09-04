@@ -1,5 +1,4 @@
 (use joy)
-(import http)
 (import ./client)
 
 # Views
