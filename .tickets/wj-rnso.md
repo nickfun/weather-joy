@@ -8,5 +8,7 @@ type: task
 priority: 2
 assignee: Nick Funnell
 ---
-# be able to clear the cache
+# @cache: have a route to delete the cache
+
+Some kind of debug or admin tool to delete the cache so I don't have to worry about it.
 

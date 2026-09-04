@@ -1,0 +1,12 @@
+---
+id: jwj-z625
+status: open
+deps: []
+links: []
+created: 2026-09-04T05:45:09Z
+type: task
+priority: 4
+assignee: Nick Funnell
+---
+# @cache - have a background task to delete old cache items
+

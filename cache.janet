@@ -6,7 +6,7 @@
 (defn json-file-write [path data]
   (let [fh (file/open path :w)
         json (json/encode data)
-        _ (print "json-file-write " path " " json)
+        # _ (print "json-file-write " path " " json)
         _ (file/write fh json)
         _ (file/close fh)]
     true))
@@ -15,20 +15,20 @@
   (let [fh (file/open path :r)
         raw (file/read fh :all)
         _ (file/close fh)
-        _ (print "json-file-read " path "\n" raw)
+        #_ (print "json-file-read " path "\n" raw)
         data (json/decode raw true true)]
     data))
 
-(defn cache-envelope [ttl data]
+(defn cache-envelope [ttl data key]
   (let [save-date (date/utc-now)
         expire-date (date/add save-date :seconds ttl)]
-    {:save-date save-date :expire-date expire-date :data data}))
+    {:key key :save-date save-date :expire-date expire-date :data data}))
 
 (defn still-valid? [envelope]
   (let [now (date/utc-now)
         past (table/to-struct (envelope :save-date))
         expire (table/to-struct (envelope :expire-date))
-        _ (print "testing date/between " now " " past " " expire)
+        #_ (print "testing date/between " now " " past " " expire)
         is-valid (date/between? now past expire)]
     is-valid))
 
@@ -41,7 +41,8 @@
       (let [path (cache-key-to-path key)
             raw-json (json-file-read path)
             date-valid (still-valid? raw-json)
-            _ (print "date valid? " date-valid)]
+            #_ (print "date valid? " date-valid)
+            ]
         (if date-valid (raw-json :data) false))))
   (if load-result
     data
@@ -50,8 +51,17 @@
 (defn write-cache [key ttl data]
   (def [write-result data]
     (protect
-      (let [payload (cache-envelope ttl data)
+      (let [payload (cache-envelope ttl data key)
             path (cache-key-to-path key)]
         (json-file-write path payload)
         true)))
   write-result)
+
+(defn cache [key ttl userfn]
+  (def load-result (load-cache key))
+  (if (= false load-result)
+    (do
+      (def user-data (userfn))
+      (def write-result (write-cache key ttl user-data))
+      user-data)
+    load-result))

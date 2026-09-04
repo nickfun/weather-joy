@@ -12,11 +12,13 @@
         _temp (period "temperature")
         _unit (period "temperatureUnit")
         temp (string _temp " " _unit)
-        detail (period "detailedForecast")]
-    [:div
-     [:h4 day]
-     [:div temp]
-     [:div detail]]))
+        detail (period "detailedForecast")
+        result [:div
+                [:h4 day]
+                [:div temp]
+                [:div detail]]]
+    (pp result)
+    result))
 
 # Layout
 # ======
@@ -63,17 +65,19 @@
         address (qs :address)
         weather (client/address-to-weather address)
         forecast (weather :forecast)
-        forecast-periods (get-in forecast ["properties" "periods"])
-        _ (print "weater is")
+        _ (print "weather is")
         _ (print (string/format "%m" weather))
-        _ (print "forecast-periods is")
-        _ (print (string/format "%m" forecast-periods))]
+        _ (print "forecast is")
+        _ (print (string/format "%m" forecast))]
     (pp (request :query-string))
     (pp address)
     [:div
      [:div "check the output!"]
      [:h3 {} address]
-     (map view-forecast-period forecast-periods)]))
+     (map view-forecast-period forecast)
+     #(view-forecast-period (forecast 0))
+     [:div.bottom "thanks!"]
+     [:div [:a {:href "/"} "Home!"]]]))
 
 # Middleware
 (def app (-> (handler)
