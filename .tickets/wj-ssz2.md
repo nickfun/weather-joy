@@ -1,6 +1,6 @@
 ---
 id: wj-ssz2
-status: open
+status: closed
 deps: []
 links: []
 created: 2026-08-31T17:56:50Z
