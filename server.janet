@@ -21,26 +21,29 @@
 # Layout
 # ======
 
+(defn my-hiccup-layout [body request]
+  [:html {:lang "en"}
+   [:head
+    [:title "weather-joy"]
+    [:meta {:charset "utf-8"}]
+    [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
+    [:meta {:name "csrf-token" :content (csrf-token-value request)}]
+    [:link {:href "/app.css" :rel "stylesheet"}]
+    [:script {:src "/app.js" :defer ""}]]
+   [:body
+    [:main
+     body]
+    [:footer.bottom
+     [:a {:href "/"} "Home"]
+     [:span {} " | "]
+     [:a {:href "/about"} "About"]
+     [:span {} " | "]
+     [:span "Powered by Janet with Joy"]]]])
+
 (defn app-layout [{:body body :request request}]
   (text/html
     (doctype :html5)
-    [:html {:lang "en"}
-     [:head
-      [:title "weather-joy"]
-      [:meta {:charset "utf-8"}]
-      [:meta {:name "viewport" :content "width=device-width, initial-scale=1"}]
-      [:meta {:name "csrf-token" :content (csrf-token-value request)}]
-      [:link {:href "/app.css" :rel "stylesheet"}]
-      [:script {:src "/app.js" :defer ""}]]
-     [:body
-      [:main
-       body]
-      [:footer.bottom
-       [:a {:href "/"} "Home"]
-       [:span {} " | "]
-       [:a {:href "/about"} "About"]
-       [:span {} " | "]
-       [:span "Powered by Janet with Joy"]]]]))
+    (my-hiccup-layout body request)))
 
 
 # Routes
@@ -60,14 +63,24 @@
   (let [qs (request :query-string)
         address (qs :address)
         clean-address (string/replace-all "+" " " address)
-        weather (client/address-to-weather address)
-        forecast (weather :forecast)]
-    (pp (request :query-string))
-    (pp address)
-    [:div
-     [:h1 "Weather Report"]
-     [:h2 clean-address]
-     (map view-forecast-period forecast)]))
+        [load-result weather-data] (protect (client/address-to-weather address))]
+
+    (if load-result
+      (do
+        (def forecast (weather-data :forecast))
+        (pp (request :query-string))
+        (pp address)
+        [:div
+         [:h1 "Weather Report"]
+         [:h2 clean-address]
+         (map view-forecast-period forecast)])
+      (do
+        # fail state!
+        (pp {:message "Failed to load weather data!" :error-msg weather-data :address address})
+        [:div
+          [:h1 "Error!"]
+          [:p "Sorry, could not get weather data for your input."]
+          [:p address]]))))
 
 (route :get "/about" :about)
 (defn about [request]
@@ -79,6 +92,19 @@
    [:p {:class "code"}
     [:b "Janet Version:"]
     [:span janet/version]]])
+
+(route :get "/debug-cookie" :debug-cookie)
+(defn debug-cookie [request]
+  (pp (get-in request [:headers "Cookie"]))
+  (let [my-body [:h1 "Hi nice to see you!"]
+        body (html my-body)]
+    @{:status 200
+      :body body
+      :headers @{"X-First" "first custom"
+                 "Set-Cookie" @[(http/cookie-string "key_1" "value one!" @{})
+                                (http/cookie-string "key_2" "value two!" @{})]
+                 "Content-Type" "text/html"}}))
+
 
 # Middleware
 (def app (-> (handler)
