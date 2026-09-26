@@ -70,17 +70,23 @@
         (def forecast (weather-data :forecast))
         (pp (request :query-string))
         (pp address)
-        [:div
-         [:h1 "Weather Report"]
-         [:h2 clean-address]
-         (map view-forecast-period forecast)])
+        (def existing (in request :session []))
+        (def ses (array/push existing address))
+        (def body [:div
+                   [:h1 "Weather Report"]
+                   [:h2 clean-address]
+                   (map view-forecast-period forecast)])
+        @{:status 200
+          :body (html (my-hiccup-layout body request))
+          :session ses
+          :headers @{"Content-Type" "text/html"}})
       (do
         # fail state!
         (pp {:message "Failed to load weather data!" :error-msg weather-data :address address})
         [:div
-          [:h1 "Error!"]
-          [:p "Sorry, could not get weather data for your input."]
-          [:p address]]))))
+         [:h1 "Error!"]
+         [:p "Sorry, could not get weather data for your input."]
+         [:p address]]))))
 
 (route :get "/about" :about)
 (defn about [request]
@@ -92,6 +98,19 @@
    [:p {:class "code"}
     [:b "Janet Version:"]
     [:span janet/version]]])
+
+(route :get "/session" :debug-session)
+(defn debug-session [request]
+  (def my-address "15966 selborne dr")
+  (def existing (in request :session []))
+  (def ses (array ;existing))
+  (array/push ses my-address)
+  (array/push ses "100")
+  (pp ses)
+  @{:status 200
+    :body (html (my-hiccup-layout [:h1 "Session Debug"] request))
+    :headers @{"Content-Type" "text/html"}
+    :session []})
 
 (route :get "/debug-cookie" :debug-cookie)
 (defn debug-cookie [request]
@@ -110,7 +129,7 @@
 (def app (-> (handler)
              (layout app-layout)
              (with-csrf-token)
-             (with-session)
+             (with-session {"Max-Age" "2592000"})
              (extra-methods)
              (query-string)
              (body-parser)
