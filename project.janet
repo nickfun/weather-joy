@@ -22,6 +22,9 @@
 (phony "format" []
        (os/shell "janet fmt.janet *.janet"))
 
+(phony "deploy" []
+       (os/shell "npm exec caprover deploy -d"))
+
 (declare-executable
   :name "app"
   :entry "server.janet")
