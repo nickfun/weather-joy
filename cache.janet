@@ -1,22 +1,19 @@
-(import spork/json)
 (import spork/date)
 
-# what
-
-(defn json-file-write [path data]
+(defn jdn-file-write [path data]
   (let [fh (file/open path :w)
-        json (json/encode data)
-        # _ (print "json-file-write " path " " json)
-        _ (file/write fh json)
+        raw-jdn (string/format "%j" data)
+        # _ (print "jdn-file-write " path " " raw-jdn)
+        _ (file/write fh raw-jdn)
         _ (file/close fh)]
     true))
 
-(defn json-file-read [path]
+(defn jdn-file-read [path]
   (let [fh (file/open path :r)
         raw (file/read fh :all)
         _ (file/close fh)
-        #_ (print "json-file-read " path "\n" raw)
-        data (json/decode raw true true)]
+        # _ (print "cache: jdn-file-read " path "\n" raw)
+        data (parse raw)]
     data))
 
 (defn cache-envelope [ttl data key]
@@ -25,25 +22,30 @@
     {:key key :save-date save-date :expire-date expire-date :data data}))
 
 (defn still-valid? [envelope]
+  #  (print "cache: still-valid? " (string/format "%j" envelope))
   (let [now (date/utc-now)
-        past (table/to-struct (envelope :save-date))
-        expire (table/to-struct (envelope :expire-date))
-        #_ (print "testing date/between " now " " past " " expire)
-        is-valid (date/between? now past expire)]
+        past (envelope :save-date)
+        expire (envelope :expire-date)
+        #        _ (print "testing date/between " now " " past " " expire)
+        is-valid (date/between? now past expire)
+        #        _ (print "is valid result " (string/format "%j" is-valid))
+        ]
     is-valid))
 
 (defn cache-key-to-path [key]
-  (string "./__cached/c" (hash key) ".json"))
+  (string "./__cached/c" (hash key) ".jdn"))
 
 (defn load-cache [key]
   (def [load-result data]
     (protect
       (let [path (cache-key-to-path key)
-            raw-json (json-file-read path)
-            date-valid (still-valid? raw-json)
-            #_ (print "date valid? " date-valid)
+            #            _ (print "cache load path is " path)
+            cached-data (jdn-file-read path)
+            #            _ (print "cache load data is " cached-data)
+            date-valid (still-valid? cached-data)
+            #            _ (print "cache " key " date valid? " date-valid)
             ]
-        (if date-valid (raw-json :data) false))))
+        (if date-valid (cached-data :data) false))))
   (if load-result
     data
     false))
@@ -53,7 +55,7 @@
     (protect
       (let [payload (cache-envelope ttl data key)
             path (cache-key-to-path key)]
-        (json-file-write path payload)
+        (jdn-file-write path payload)
         true)))
   write-result)
 
@@ -70,7 +72,10 @@
   (def load-result (load-cache key))
   (if (= false load-result)
     (do
+      #      (print "cache miss! " key)
       (def user-data (userfn))
       (def write-result (write-cache key ttl user-data))
       user-data)
-    load-result))
+    (do
+      #      (print "cache hit! " key)
+      load-result)))

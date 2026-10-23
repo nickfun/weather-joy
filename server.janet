@@ -78,9 +78,9 @@
         # fail state!
         (pp {:message "Failed to load weather data!" :error-msg weather-data :address address})
         [:div
-          [:h1 "Error!"]
-          [:p "Sorry, could not get weather data for your input."]
-          [:p address]]))))
+         [:h1 "Error!"]
+         [:p "Sorry, could not get weather data for your input."]
+         [:p address]]))))
 
 (route :get "/about" :about)
 (defn about [request]
